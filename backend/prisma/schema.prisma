@@ -1,0 +1,68 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Slot {
+  id      Int      @id @default(autoincrement())
+  duration Int     @default(2)
+  coach    Coach @relation(fields: [coachId], references: [id])
+  coachId  Int
+  startTime DateTime
+  available Boolean @default(true)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt @default(now())
+}
+
+model Coach {
+  id      Int      @id @default(autoincrement())
+  email   String   @unique
+  name    String?
+  calls   Call[]
+  slots   Slot[]
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt @default(now())
+  phoneNumber String
+}
+
+model Feedback {
+    id      Int      @id @default(autoincrement())
+    rating Int 
+    notes String?
+    call Call? @relation(fields: [callId], references: [id])
+    callId Int @unique
+    createdAt DateTime @default(now())
+    updatedAt DateTime @updatedAt @default(now())
+}
+
+model Student {
+  id      Int      @id @default(autoincrement())
+  email   String   @unique
+  name    String?
+  calls   Call[]
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt @default(now())
+  phoneNumber String
+}
+
+model Call {
+  id        Int      @id @default(autoincrement())
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt @default(now())
+  coach    Coach     @relation(fields: [coachId], references: [id])
+  coachId  Int
+  student Student @relation(fields: [studentId], references: [id])
+  studentId Int
+  startTime DateTime
+  feedback Feedback? 
+}
